@@ -1,0 +1,23 @@
+{
+  "port": 8000,
+  "hosts": {
+    "user.example.com": {
+      "httpRoot": "public/user",
+      "indexFile": "index.html",
+      "errorPages": {
+        "403": "403.html",
+        "404": "404.html",
+        "500": "500.html"
+      }
+    },
+    "admin.example.com": {
+      "httpRoot": "public/admin",
+      "indexFile": "index.html",
+      "errorPages": {
+        "403": "403.html",
+        "404": "404.html",
+        "500": "500.html"
+      }
+    }
+  }
+}

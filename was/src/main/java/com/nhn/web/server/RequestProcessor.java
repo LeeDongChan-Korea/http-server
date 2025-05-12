@@ -33,6 +33,7 @@ public class RequestProcessor implements Runnable {
                 host = req != null ? req.getHost() : null;
             } catch (UnsupportedOperationException e) {
                 sendErrorPage(out, HttpStatus.NOT_IMPLEMENTED, host);
+                e.printStackTrace();
                 return;
             }
 
@@ -76,19 +77,24 @@ public class RequestProcessor implements Runnable {
 
             } catch (ClassNotFoundException e) {
                 sendErrorPage(out, HttpStatus.NOT_FOUND, host);
+                e.printStackTrace();
             } catch (IllegalArgumentException e) {
                 sendErrorPage(out, HttpStatus.NOT_IMPLEMENTED, host);
+                e.printStackTrace();
             } catch (Exception e) {
                 sendErrorPage(out, HttpStatus.INTERNAL_SERVER_ERROR, host);
+                e.printStackTrace();
             }
 
         } catch (IOException e) {
             logger.warning("I/O error: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             try {
                 connection.close();
             } catch (IOException e) {
                 logger.warning("Connection close failed: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -99,7 +105,12 @@ public class RequestProcessor implements Runnable {
             ServerConfig.HostConfig hostConfig = config.getHosts().get(host);
             String fileName = config.getErrorPage(host, status.code());
             if (fileName != null) {
-                errorFile = new File(hostConfig.getHttpRoot(), fileName);
+                try {
+                    errorFile = new File(hostConfig.getHttpRoot(), fileName).getCanonicalFile();
+                    logger.warning("Trying to read error file: " + errorFile.getAbsolutePath());
+                } catch (IOException e) {
+                    logger.warning("Failed to resolve canonical path for error file: " + e.getMessage());
+                }
             }
         }
         errorHandler.send(out, status, errorFile);

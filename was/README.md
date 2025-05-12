@@ -107,7 +107,7 @@ curl -H "Host: user.example.com" http://localhost:8000/
 curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 ```
 ---
-### 도메인 분류는 호스트에 따라 다른 것을 유지합니다.
+### 
 
 * 실제 브라우저에서 `user.example.com` 와 같은 주소처럼 접속하고자 할 경우,
 * 개발 프로필에서 도메인이 IP로 변환되어야 합니다.

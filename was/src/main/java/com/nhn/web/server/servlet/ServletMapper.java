@@ -18,12 +18,16 @@ public class ServletMapper {
      * @return 매핑된 클래스 이름 (정적 요청이면 null)
      */
     public static String mapUrlToClassName(String path, ServerConfig config, String host) {
+    	
+        if (path == null) {
+            return null;
+        }
         // 1. 설정 기반 매핑이 존재할 경우 우선 사용
-        /*Map<String, String> servletMappings = getServletMappingsFromConfig(config);
+        Map<String, String> servletMappings = getServletMappingsFromConfig(config);
         if (servletMappings.containsKey(path)) {
             String mappedClass = servletMappings.get(path);
             return BASE_PACKAGE + "." + mappedClass;
-        }*/
+        }
 
         // 2. 규칙 기반 매핑 처리
         if (path == null || path.equals("/")) {

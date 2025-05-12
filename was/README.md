@@ -31,8 +31,17 @@
 # Maven 빌드
 mvn clean package
 
+** 실행시 target/was.jar가 생성됩니다.
+
 # 서버 실행
+** 
+
+-- target 내부에서 실행시
 java -jar was.jar
+
+-- mvn clean pacakge 빌드성공후 바로 실행시
+java -jar target/was.jar
+
 ```
 
 ---

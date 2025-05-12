@@ -1,7 +1,6 @@
 package com.nhn.web.server;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
@@ -37,12 +36,8 @@ public class HttpServer {
                     pool.submit(new RequestProcessor(config, request));
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Failed to accept connection", e);
-                } catch (RejectedExecutionException e) {
-                    logger.log(Level.SEVERE, "Thread pool rejected request", e);
                 }
             }
-        } catch (BindException e) {
-            logger.severe("Port already in use: " + config.getPort());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Server failed to start", e);
         } finally {
@@ -55,10 +50,9 @@ public class HttpServer {
      */
     public static void main(String[] args) {
         try {
-            String configFile = args.length > 0 ? args[0] : "config.json";
-            ServerConfig config = ServerConfig.loadFromFile(configFile);
-            HttpServer server = new HttpServer(config);
-            server.start();
+            String configPath = args.length > 0 ? args[0] : "config.json";
+            ServerConfig config = ServerConfig.loadFromFile(configPath);
+            new HttpServer(config).start();
         } catch (Exception e) {
             e.printStackTrace();
         }

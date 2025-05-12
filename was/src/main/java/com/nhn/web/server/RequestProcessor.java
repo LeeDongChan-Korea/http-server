@@ -9,86 +9,77 @@ import java.io.*;
 import java.net.Socket;
 import java.util.logging.Logger;
 
-/**
- * 클라이언트로부터 연결된 Socket을 처리
- * 요청 파싱 → 보안 검사 → 서블릿 호출 → 응답 전송
- */
 public class RequestProcessor implements Runnable {
     private static final Logger logger = Logger.getLogger(RequestProcessor.class.getCanonicalName());
-
     private final ServerConfig config;
     private final Socket connection;
-    private final ErrorHandler errorHandler;
+    private final ErrorHandler errorHandler = new ErrorHandler();
 
-    /**
-     * RequestProcessor 생성자
-     *
-     * @param config     서버 설정 정보
-     * @param connection 클라이언트와 연결된 소켓
-     */
     public RequestProcessor(ServerConfig config, Socket connection) {
         this.config = config;
         this.connection = connection;
-        this.errorHandler = new ErrorHandler(); // ErrorHandler는 추후 DI 구조로 전환 가능
     }
 
-    /**
-     * 클라이언트 요청을 처리
-     * - 요청 파싱
-     * - 보안 검사
-     * - 서블릿 매핑 및 호출
-     * - 에러 처리 및 응답 전송
-     */
     @Override
     public void run() {
         try (
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             OutputStream out = connection.getOutputStream()
         ) {
-            HttpRequest req;
-
-            // 요청 파싱
+            HttpRequest req = null;
+            String host = null;
             try {
                 req = RequestParser.parseRequest(in);
-                if (req == null) {
-                    errorHandler.send(out, HttpStatus.FORBIDDEN); 
-                    return;
-                }
+                host = req != null ? req.getHost() : null;
             } catch (UnsupportedOperationException e) {
-                errorHandler.send(out, HttpStatus.NOT_IMPLEMENTED);
+                sendErrorPage(out, HttpStatus.NOT_IMPLEMENTED, host);
                 return;
             }
 
-            // 보안 검사
+            if (req == null || host == null || !config.getHosts().containsKey(host)) {
+                sendErrorPage(out, HttpStatus.NOT_FOUND, host);
+                return;
+            }
+
             if (SecurityManager.isForbidden(req.getPath())) {
-                errorHandler.send(out, HttpStatus.FORBIDDEN);
+                sendErrorPage(out, HttpStatus.FORBIDDEN, host);
                 return;
             }
 
-            String host = req.getHost();
             String path = req.getPath();
+            ServerConfig.HostConfig hostConfig = config.getHosts().get(host);
 
+            if (path.equals("/") || path.endsWith("/")) {
+                path += hostConfig.getIndexFile();
+            }
+
+            File file = new File(hostConfig.getHttpRoot(), path);
             HttpResponse res = new HttpResponse(out);
 
-            // 요청 경로에 해당하는 서블릿 클래스 이름 추출
-            String className = ServletMapper.mapUrlToClassName(path, config, host);
+            if (file.exists() && file.isFile()) {
+                res.sendFile(file);
+                res.flush();
+                return;
+            }
 
+            String className = ServletMapper.mapUrlToClassName(path, config, host);
             try {
                 Class<?> clazz = Class.forName(className);
                 Object instance = clazz.getDeclaredConstructor().newInstance();
 
                 if (!(instance instanceof SimpleServlet)) {
-                    errorHandler.send(out, HttpStatus.NOT_IMPLEMENTED);
-                    return;
+                    throw new IllegalArgumentException("Invalid servlet type");
                 }
 
                 ((SimpleServlet) instance).service(req, res);
                 res.flush();
 
             } catch (ClassNotFoundException e) {
-                errorHandler.send(out, HttpStatus.NOT_FOUND);
+                sendErrorPage(out, HttpStatus.NOT_FOUND, host);
+            } catch (IllegalArgumentException e) {
+                sendErrorPage(out, HttpStatus.NOT_IMPLEMENTED, host);
             } catch (Exception e) {
-                errorHandler.send(out, HttpStatus.INTERNAL_SERVER_ERROR);
+                sendErrorPage(out, HttpStatus.INTERNAL_SERVER_ERROR, host);
             }
 
         } catch (IOException e) {
@@ -100,5 +91,17 @@ public class RequestProcessor implements Runnable {
                 logger.warning("Connection close failed: " + e.getMessage());
             }
         }
+    }
+
+    private void sendErrorPage(OutputStream out, HttpStatus status, String host) {
+        File errorFile = null;
+        if (host != null && config.getHosts().containsKey(host)) {
+            ServerConfig.HostConfig hostConfig = config.getHosts().get(host);
+            String fileName = config.getErrorPage(host, status.code());
+            if (fileName != null) {
+                errorFile = new File(hostConfig.getHttpRoot(), fileName);
+            }
+        }
+        errorHandler.send(out, status, errorFile);
     }
 }

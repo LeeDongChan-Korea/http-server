@@ -5,8 +5,6 @@ import com.nhn.web.server.HttpResponse;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 import static org.junit.Assert.*;
 

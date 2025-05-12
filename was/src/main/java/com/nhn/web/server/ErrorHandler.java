@@ -1,8 +1,10 @@
 package com.nhn.web.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.logging.Logger;
 
 import com.nhn.web.server.config.HttpStatus;
@@ -19,21 +21,39 @@ public class ErrorHandler {
      * @param status 전송할 HTTP 상태 코드와 메시지
      */
     public void send(OutputStream out, HttpStatus status) {
-        String body = status.reason();
-        byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+        sendPlainText(out, status, status.reason());
+    }
 
-        // HTTP 응답 메시지 생성
-        String response = "HTTP/1.1 " + status + "\r\n" +
-                          "Content-Type: text/plain; charset=UTF-8\r\n" +
-                          "Content-Length: " + bodyBytes.length + "\r\n" +
-                          "\r\n" +
-                          body;
-
+    public void send(OutputStream out, HttpStatus status, File file) {
         try {
+            if (file.exists()) {
+                byte[] body = Files.readAllBytes(file.toPath());
+                String header = "HTTP/1.1 " + status + "\r\n" +
+                                "Content-Type: text/html; charset=UTF-8\r\n" +
+                                "Content-Length: " + body.length + "\r\n\r\n";
+                out.write(header.getBytes(StandardCharsets.UTF_8));
+                out.write(body);
+                out.flush();
+            } else {
+                sendPlainText(out, status, status.reason());
+            }
+        } catch (IOException e) {
+            logger.warning("Error sending error file: " + e.getMessage());
+            sendPlainText(out, status, status.reason());
+        }
+    }
+
+    private void sendPlainText(OutputStream out, HttpStatus status, String message) {
+        try {
+            byte[] bodyBytes = message.getBytes(StandardCharsets.UTF_8);
+            String response = "HTTP/1.1 " + status + "\r\n" +
+                              "Content-Type: text/plain; charset=UTF-8\r\n" +
+                              "Content-Length: " + bodyBytes.length + "\r\n\r\n" +
+                              message;
             out.write(response.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {
-            logger.warning("Error sending error response: " + e.getMessage());
+            logger.warning("Error sending plain text error: " + e.getMessage());
         }
     }
 }

@@ -21,32 +21,21 @@ public class RequestParser {
      */
     public static HttpRequest parseRequest(BufferedReader reader) throws IOException {
         String requestLine = reader.readLine();
-
-        if (requestLine == null || requestLine.isEmpty()) {
-            return null;
-        }
+        if (requestLine == null || requestLine.isEmpty()) return null;
 
         String[] tokens = requestLine.split("\\s+");
-
-        if (tokens.length < 2) {
-            return null; // 요청 라인이 이상할 경우 null 반환
+        if (tokens.length < 2 || !"GET".equals(tokens[0])) {
+            throw new UnsupportedOperationException("Only GET supported");
         }
 
-        String method = tokens[0];
         String uri = tokens[1];
-
-        if (!"GET".equals(method)) {
-            throw new UnsupportedOperationException("Only GET method is supported");
-        }
-        
         String host = null;
         String line;
         while ((line = reader.readLine()) != null && !line.isEmpty()) {
             if (line.toLowerCase().startsWith("host:")) {
-                host = line.substring(5).trim(); // ex: Host: user.example.com
+                host = line.substring(5).trim();
             }
         }
-
         return new HttpRequest(uri, host);
     }
 }

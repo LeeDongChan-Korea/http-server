@@ -3,7 +3,6 @@ package com.nhn.web.server;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import static org.junit.Assert.*;

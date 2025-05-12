@@ -2,7 +2,6 @@ package com.nhn.web.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -35,10 +34,7 @@ public class ServerConfig {
 
     public String getHttpRoot(String host) {
         HostConfig hostConfig = hosts.get(host);
-        if (hostConfig != null) {
-            return hostConfig.getHttpRoot();
-        }
-        return null;
+        return hostConfig != null ? hostConfig.getHttpRoot() : null;
     }
 
     public String getErrorPage(String host, int statusCode) {
@@ -47,13 +43,12 @@ public class ServerConfig {
             String page = hostConfig.getErrors().get(String.valueOf(statusCode));
             if (page != null) return page;
         }
-        // fallback to defaultErrorPages
         return defaultErrorPages != null ? defaultErrorPages.get(String.valueOf(statusCode)) : null;
     }
 
     public static class HostConfig {
         private String httpRoot;
-        private String indexFile = "index.html"; // 기본값
+        private String indexFile = "index.html";
 
         @JsonProperty("errorPages")
         private Map<String, String> errors = new HashMap<>();

@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import com.nhn.web.server.config.ServerConfig.HostConfig;
 
-import java.io.File;
 
 import static org.junit.Assert.*;
 

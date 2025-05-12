@@ -6,23 +6,20 @@
 
 ### 주요 기능
 
-- SimpleServlet 기반 동적 처리
-
-- config.json 기반 호스트별 포트 및 경로 설정
-
-- .exe, .. 등 금지된 경로 접근 차단
-
-- 403, 404, 500 오류 처리 페이지 지원
-
-- Logback 기반 로깅, 날짜별 로깅
-
-- JUnit 기반 단위 테스트 포함
+* SimpleServlet 기반 동적 요청 처리
+* `config.json` 기반 호스트별 포트 및 경로 설정
+* `.exe`, `..` 등 금지된 경로 접근 차단
+* 403, 404, 500 오류 페이지 지원
+* Logback 기반 날짜별 로깅
+* JUnit 기반 단위 테스트 포함
 
 ---
- ### 실행 환경
-- Java 11
 
-- Maven 3.6.3 이상
+### 실행 환경
+
+* Java 11
+* Maven 3.6.3 이상
+
 ---
 
 ### 실행 방법
@@ -31,28 +28,33 @@
 # Maven 빌드
 mvn clean package
 
-** 실행시 target/was.jar가 생성됩니다.
-
-# 서버 실행
-** 
-
--- target 내부에서 실행시
-java -jar was.jar
-
--- mvn clean pacakge 빌드성공후 바로 실행시
+# 빌드 후 생성된 JAR 실행
 java -jar target/was.jar
-
 ```
 
 ---
- ### 구성
-- /src/main/java: 서버 코드
 
-- /src/test/java: 단위 테스트 (JUnit 4)
+### 디렉터리 구조
 
-- config.json: 서버 설정 파일
+```
+was/
+├── config.json
+├── public/
+│   ├── user/
+│   │   ├── index.html
+│   │   └── 404.html ...
+│   └── admin/
+│       ├── index.html
+│       └── 403.html ...
+├── src/
+│   ├── main/java/com/nhn/web/server/
+│   └── test/java/com/nhn/web/server/
+└── pom.xml
+```
 
-### 설정 파일: `config.json`
+---
+
+### 설정 파일 예시: `config.json`
 
 ```json
 {
@@ -91,47 +93,32 @@ java -jar target/was.jar
 
 ---
 
-### 프로젝트 구조 예시
-
-```
-was/
-├── config.json
-├── public/
-│   ├── user/
-│   │   ├── index.html
-│   │   └── 404.html ...
-│   └── admin/
-│       ├── index.html
-│       └── 403.html ...
-└── src/
-    └── main/java/com/nhn/web/server/
-```
-
-### curl 테스트 예시
+### 테스트 예시 (curl)
 
 ```bash
 curl -H "Host: user.example.com" http://localhost:8000/
 curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 ```
+
 ---
-### 
 
-* 실제 브라우저에서 `user.example.com` 와 같은 주소처럼 접속하고자 할 경우,
-* 개발 프로필에서 도메인이 IP로 변환되어야 합니다.
+### hosts 설정 예시 (Windows)
 
-#### hosts 파일 (예: Windows)
+`user.example.com` 등의 도메인을 테스트하려면 로컬 hosts 파일에 아래와 같이 등록하세요:
 
 ```
 127.0.0.1 user.example.com
 127.0.0.1 admin.example.com
 127.0.0.1 localhost
 ```
+
 ---
 
-### 브라우저 테스트
+### 브라우저 테스트 예시
 
 ```bash
 http://localhost:8000/
 http://localhost:8000/service.Time
 ```
+
 ---

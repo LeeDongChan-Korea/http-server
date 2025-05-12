@@ -13,10 +13,14 @@ public class Hello implements SimpleServlet {
         try {
             Writer writer = res.getWriter();
             String name = req.getParameter("name");
-            if (name == null) name = "Guest";
-            writer.write("<html><body>");
-            writer.write("Hello, ");
-            writer.write(name);
+            if (name == null || name.trim().isEmpty()) name = "Guest";
+
+            writer.write("<!DOCTYPE html>");
+            writer.write("<html><head><title>Hello</title>");
+            writer.write("<style>body { font-family: Arial; padding: 20px; }</style>");
+            writer.write("</head><body>");
+            writer.write("<h1>Hello, " + name + "!</h1>");
+            writer.write("<p>Welcome to the simple Java servlet example.</p>");
             writer.write("</body></html>");
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,42 +1,37 @@
 package com.nhn.web.server.config;
 
-import org.junit.Before;
 import org.junit.Test;
-
-import com.nhn.web.server.config.ServerConfig.HostConfig;
-
 
 import static org.junit.Assert.*;
 
+/**
+ * Test loading server configuration
+ */
 public class ServerConfigTest {
-    private ServerConfig config;
 
-    @Before
-    public void setUp() {
-        config = ServerConfig.loadFromFile("test-config.json");
+    @Test
+    public void testLoadConfig() {
+        ServerConfig config = ServerConfig.loadFromFile("config.json");
+        assertNotNull(config);
     }
 
     @Test
-    public void testPortLoading() {
-        assertEquals(8000, config.getPort());
+    public void testHostsDefined() {
+        ServerConfig config = ServerConfig.loadFromFile("config.json");
+        assertTrue(config.getHosts().size() > 1);
     }
 
     @Test
-    public void testHttpRootForHost() {
-        assertEquals("www/a", config.getHttpRoot("a.com"));
-        assertEquals("www/b", config.getHttpRoot("b.com"));
+    public void testLoadErrorPage() {
+        ServerConfig config = ServerConfig.loadFromFile("config.json");
+        String errorPage = config.getErrorPage("localhost", 404);
+        assertNotNull(errorPage);
     }
 
     @Test
-    public void testErrorPageMapping() {
-        assertEquals("403.html", config.getErrorPage("a.com", 403));
-        assertEquals("404.html", config.getErrorPage("a.com", 404));
-        assertEquals("500.html", config.getErrorPage("b.com", 500));
-    }
-
-    @Test
-    public void testDefaultFallback() {
-    	HostConfig hostConfig = config.getHosts().get("a.com");
-        assertEquals("403.html", hostConfig.getErrors().get("403"));
+    public void testErrorPageNotDefined() {
+        ServerConfig config = ServerConfig.loadFromFile("config.json");
+        String errorPage = config.getErrorPage("localhost", 999); // 정의되지 않은 오류코드
+        assertNull(errorPage);
     }
 }

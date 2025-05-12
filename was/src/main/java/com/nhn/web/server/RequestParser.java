@@ -4,38 +4,38 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
- * HTTP 요청의 첫 줄을 파싱하여 HttpRequest 객체를 생성
+ * 요청 라인과 헤더를 읽어 HttpRequest 객체를 만듦
+ * - GET, POST 같은 메서드 구분은 따로 안함
  */
 public class RequestParser {
 
     /**
-     * 요청 라인을 파싱하여 HttpRequest 객체를 반환한다.
-     * 현재는 GET 메서드만 지원한다.
+     * 요청 파싱
+     * 예: GET /index.html HTTP/1.1
      *
-     * 예시 요청: GET /index.html HTTP/1.1
-     *
-     * @param reader 입력 스트림에서 요청을 읽기 위한 BufferedReader
-     * @return HttpRequest 객체 또는 유효하지 않은 경우 null
-     * @throws IOException 입출력 오류
-     * @throws UnsupportedOperationException GET 외의 메서드 요청 시
+     * @param reader 클라이언트 요청을 읽을 Reader
+     * @return 파싱된 HttpRequest 객체 (잘못된 요청이면 null)
+     * @throws IOException 읽기 실패 시
      */
     public static HttpRequest parseRequest(BufferedReader reader) throws IOException {
         String requestLine = reader.readLine();
         if (requestLine == null || requestLine.isEmpty()) return null;
 
         String[] tokens = requestLine.split("\\s+");
-        if (tokens.length < 2 || !"GET".equals(tokens[0])) {
-            throw new UnsupportedOperationException("Only GET supported");
-        }
+        if (tokens.length < 2) return null;
 
+        String method = tokens[0];
         String uri = tokens[1];
         String host = null;
+
+        // 헤더 중 Host 추출
         String line;
         while ((line = reader.readLine()) != null && !line.isEmpty()) {
             if (line.toLowerCase().startsWith("host:")) {
                 host = line.substring(5).trim();
             }
         }
-        return new HttpRequest(uri, host);
+
+        return new HttpRequest(method, uri, host);
     }
 }

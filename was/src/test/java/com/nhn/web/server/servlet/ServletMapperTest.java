@@ -1,20 +1,41 @@
 package com.nhn.web.server.servlet;
 
+import com.nhn.web.server.config.ServerConfig;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ServletMapperTest {
 
-    @Test
-    public void testSimpleClassMapping() {
-        String result = ServletMapper.mapUrlToClassName("/Hello", null ,null);
-        assertEquals("com.nhn.web.server.service.Hello", result);
+    private ServerConfig config;
+    private String host;
+
+    @Before
+    public void setUp() {
+        config = ServerConfig.loadFromFile("config.json");
+        host = "localhost";
     }
 
     @Test
-    public void testPackageMapping() {
-        String result = ServletMapper.mapUrlToClassName("/service.Hello", null, null);
-        assertEquals("com.nhn.web.server.service.Hello", result);
+    public void testMappingPath() {
+        String path = "/Hello";
+        String expected = "com.nhn.web.server.service.Hello";
+        assertEquals(expected, ServletMapper.mapUrlToClassName(path, config, host));
+    }
+
+    @Test
+    public void testStaticPath() {
+        assertNull(ServletMapper.mapUrlToClassName("/index.html", config, host));
+    }
+
+    @Test
+    public void testRootPath() {
+        assertNull(ServletMapper.mapUrlToClassName("/", config, host));
+    }
+
+    @Test
+    public void testNullPath() {
+        assertNull(ServletMapper.mapUrlToClassName(null, config, host));
     }
 }

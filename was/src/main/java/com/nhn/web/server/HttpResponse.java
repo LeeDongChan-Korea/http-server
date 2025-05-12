@@ -1,21 +1,24 @@
 package com.nhn.web.server;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+
 /**
- * HTTP 응답을 구성하고 출력하는 클래스.
- * - 기본적으로 200 OK 응답과 HTML 컨텐츠 타입을 전송한다.
- * - 본문 작성을 위한 Writer를 제공한다.
+ * 클라이언트에 HTTP 응답을 보내는 클래스
+ * - 기본적으로 200 OK와 HTML 응답 헤더를 보냄
+ * - Writer를 통해 HTML 본문 작성 가능
  */
 public class HttpResponse {
     private final OutputStream out;
     private final Writer writer;
 
+    /**
+     * 응답용 OutputStream 설정
+     * 기본 응답 헤더는 200 OK + HTML로 시작
+     *
+     * @param out 클라이언트와 연결된 출력 스트림
+     */
     public HttpResponse(OutputStream out) throws IOException {
         this.out = out;
         this.writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
@@ -23,18 +26,56 @@ public class HttpResponse {
         writer.write("Content-Type: text/html; charset=utf-8\r\n\r\n");
     }
 
+    /**
+     * HTML 본문 작성을 위한 Writer 제공
+     *
+     * @return Writer
+     */
     public Writer getWriter() {
         return writer;
     }
 
+    /**
+     * 작성된 내용을 클라이언트로 전송 (flush)
+     */
     public void flush() throws IOException {
         writer.flush();
     }
 
+    /**
+     * 지정된 파일을 읽어서 전송
+     * - Content-Type은 HTML로 고정
+     *
+     * @param file 전송할 파일
+     */
     public void sendFile(File file) throws IOException {
         byte[] content = Files.readAllBytes(file.toPath());
         out.write(("HTTP/1.1 200 OK\r\n" +
                    "Content-Type: text/html; charset=UTF-8\r\n" +
+                   "Content-Length: " + content.length + "\r\n\r\n")
+                   .getBytes(StandardCharsets.UTF_8));
+        out.write(content);
+        out.flush();
+    }
+
+    /**
+     * InputStream으로부터 데이터를 읽어 전송
+     * - Content-Type을 직접 지정 가능
+     *
+     * @param in 입력 스트림
+     * @param contentType 전송할 데이터의 MIME 타입
+     */
+    public void sendFile(InputStream in, String contentType) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] tmp = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = in.read(tmp)) != -1) {
+            buffer.write(tmp, 0, bytesRead);
+        }
+        byte[] content = buffer.toByteArray();
+
+        out.write(("HTTP/1.1 200 OK\r\n" +
+                   "Content-Type: " + contentType + "\r\n" +
                    "Content-Length: " + content.length + "\r\n\r\n")
                    .getBytes(StandardCharsets.UTF_8));
         out.write(content);

@@ -1,24 +1,36 @@
-## 📦 Simple HTTP Server (Java)
+## NHN HTTP Server (Java)
 
-도메인 기반 정적 파일 서비스 및 HTML 에러 페이지 처리 기능을 가지는 간단한 HTTP 서버입니다.
-
----
-
-### ✅ 주요 기능
-
-* **도메인(Host) 기반 가상 호스팅 (Virtual Hosting)**
-
-  * `config.json`에 따라 `user.example.com`, `admin.example.com` 등의 도메인 요청 분기
-* **정적 파일 제공**
-
-  * 각 도메인마다 변동된 `httpRoot` 디렉터리 설정 가능
-* **도메인별 index 파일 및 에러 페이지**
-
-  * 403, 404, 500 에러 발생 시 도메인별 HTML 에러 페이지 렌더링
+도메인 기반 서비스 및 에러 페이지 처리 기능을 가지는 간단한 HTTP 서버입니다.
 
 ---
 
-### 🛠 설정 파일: `config.json`
+### 주요 기능
+
+- SimpleServlet 기반 동적 처리
+
+- config.json 기반 호스트별 포트 및 경로 설정
+
+- .exe, .. 등 금지된 경로 접근 차단
+
+- 403, 404, 500 오류 처리 페이지 지원
+
+- Logback 기반 로깅, 날짜별 로깅
+
+- JUnit 기반 단위 테스트 포함
+
+---
+ ### 실행 환경
+- Java 11
+
+- Maven 3.6.3 이상
+
+ ### 구성
+/src/main/java: 서버 코드
+
+/src/test/java: 단위 테스트 (JUnit 4)
+
+config.json: 서버 설정 파일
+### 설정 파일: `config.json`
 
 ```json
 {
@@ -35,6 +47,15 @@
     },
     "admin.example.com": {
       "httpRoot": "public/admin",
+      "indexFile": "index.html",
+      "errorPages": {
+        "403": "403.html",
+        "404": "404.html",
+        "500": "500.html"
+      }
+    },
+    "localhost": {
+      "httpRoot": "public/localhost",
       "indexFile": "index.html",
       "errorPages": {
         "403": "403.html",
@@ -66,23 +87,46 @@ was/
 
 ---
 
-### 🚀 실행 방법
+### 실행 방법
 
 ```bash
 # Maven 빌드
 mvn clean package
 
 # 서버 실행
-java -cp target/was-1.0-SNAPSHOT.jar com.nhn.web.server.HttpServer config.json
+java -jar was.jar
 ```
 
 ---
 
-### 🥪 테스트 예시
+### curl 테스트 예시
 
 ```bash
 curl -H "Host: user.example.com" http://localhost:8000/
-curl -H "Host: admin.example.com" http://localhost:8000/notfound.html
+curl -H "Host: admin.example.com" http://localhost:8000/service.Time
+```
+---
+### 도메인 분류는 호스트에 따라 다른 것을 유지합니다.
+
+* 실제 브라우저에서 `user.example.com` 와 같은 주소처럼 접속하고자 할 경우,
+* 개발 프로필에서 도메인이 IP로 변환되어야 합니다.
+
+#### hosts 파일 (예: Windows)
+
+```
+127.0.0.1 user.example.com
+127.0.0.1 admin.example.com
+127.0.0.1 localhost
+```
+---
+---
+
+### 브라우저 테스트
+
+```bash
+http://localhost:8000/
+http://localhost:8000/service.Time
 ```
 
 
+---

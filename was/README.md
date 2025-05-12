@@ -25,11 +25,12 @@
 - Maven 3.6.3 이상
 
  ### 구성
-/src/main/java: 서버 코드
+- /src/main/java: 서버 코드
 
-/src/test/java: 단위 테스트 (JUnit 4)
+- /src/test/java: 단위 테스트 (JUnit 4)
 
-config.json: 서버 설정 파일
+- config.json: 서버 설정 파일
+
 ### 설정 파일: `config.json`
 
 ```json
@@ -119,7 +120,6 @@ curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 127.0.0.1 localhost
 ```
 ---
----
 
 ### 브라우저 테스트
 
@@ -127,6 +127,4 @@ curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 http://localhost:8000/
 http://localhost:8000/service.Time
 ```
-
-
 ---

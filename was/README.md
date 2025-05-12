@@ -85,17 +85,4 @@ curl -H "Host: user.example.com" http://localhost:8000/
 curl -H "Host: admin.example.com" http://localhost:8000/notfound.html
 ```
 
----
 
-필요 시 포트 변경, 에러 페이지 변경은 `config.json`에서 자육보건히 가능하며,
-`RequestProcessor`, `ErrorHandler` 내부 로직을 통해 동적으로 처리됩니다.
-# NHN 사전 과제: Java 기반 Simple WAS
-
-## 🔧 빌드 및 실행 방법
-
-```bash
-# Maven 빌드 (JAR + 테스트)
-mvn clean package
-
-# 실행
-java -jar target/was.jar

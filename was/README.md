@@ -22,34 +22,57 @@
 
 ---
 
-### 실행 방법
+## 실행 방법
+
+>  본 프로젝트에는 실행을 위한 JDK 11과 Maven이 함께 포함되어 있습니다.
+
+### 1. 기본 실행
 
 ```bash
 # Maven 빌드
 mvn clean package
 
-# 빌드 후 생성된 JAR 실행
-java -jar target/was.jar
+# 빌드 후 JAR 실행
+java -jar was.jar
 ```
 
+### 2. 실행 환경이 다르거나 Maven/JDK가 구성되지 않은 경우
+
+- 시스템에 Maven이 없거나 환경변수가 구성되지 않은 경우, 아래처럼 포함된 실행 파일 사용:
+
+```bash
+# 포함된 JDK 및 Maven 사용 예시 
+.\maven-3.9.9\bin\mvn clean package
+.\jdk-11\bin\java -jar was.jar
+
+```
 ---
 
 ### 디렉터리 구조
 
 ```
 was/
-├── config.json
-├── public/
-│   ├── user/
-│   │   ├── index.html
-│   │   └── 404.html ...
-│   └── admin/
-│       ├── index.html
-│       └── 403.html ...
 ├── src/
-│   ├── main/java/com/nhn/web/server/
-│   └── test/java/com/nhn/web/server/
-└── pom.xml
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/nhn/web/server/
+│   │   │       ├── config/
+│   │   │       ├── service/
+│   │   │       └── servlet/
+│   │   └── resources/
+│   │       ├── config.json
+│   │       └── public/
+│   │           ├── user/
+│   │           ├── admin/
+│   │           └── localhost/
+│   └── test/
+│       ├── java/com/nhn/web/server/...
+│       └── resources/
+├── maven-3.9.9/... ##빌드도구
+├── jdk-11/...      ##실행도구
+├── pom.xml
+└── README.md
+
 ```
 
 ---
@@ -98,6 +121,7 @@ was/
 ```bash
 curl -H "Host: user.example.com" http://localhost:8000/
 curl -H "Host: admin.example.com" http://localhost:8000/service.Time
+curl -H "Host: admin.example.com" http://localhost:8000/Not ##존재하지않는 파일테스트
 ```
 
 ---
@@ -109,7 +133,6 @@ curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 ```
 127.0.0.1 user.example.com
 127.0.0.1 admin.example.com
-127.0.0.1 localhost
 ```
 
 ---
@@ -118,7 +141,7 @@ curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 
 ```bash
 http://localhost:8000/
-http://localhost:8000/service.Time
+http://localhost:8000/Hello
 ```
 
 ---

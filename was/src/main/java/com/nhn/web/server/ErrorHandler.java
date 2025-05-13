@@ -6,50 +6,39 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 /**
- * 에러 응답을 클라이언트로 보내는 클래스
+ * 에러 응답 전송용 클래스
  */
 public class ErrorHandler {
     private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 
+    /**
+     * 텍스트 형식 에러 응답 전송
+     */
     public void send(OutputStream out, HttpStatus status) {
         sendPlainText(out, status, status.reason());
     }
 
-    public void send(OutputStream out, HttpStatus status, File file) {
-        try {
-            if (file != null && file.exists()) {
-                byte[] body = Files.readAllBytes(file.toPath());
-                String header = "HTTP/1.1 " + status + "\r\n" +
-                        "Content-Type: text/html; charset=UTF-8\r\n" +
-                        "Content-Length: " + body.length + "\r\n\r\n";
-                out.write(header.getBytes(StandardCharsets.UTF_8));
-                out.write(body);
-                out.flush();
-            } else {
-                sendPlainText(out, status, status.reason());
-            }
-        } catch (IOException e) {
-            logger.error("에러 페이지 전송 중 예외 발생: {}", e);
-            sendPlainText(out, status, status.reason());
-        }
-    }
-
+    /**
+     * 에러 페이지(InputStream) 있으면 HTML로, 없으면 텍스트로 전송
+     */
     public void send(OutputStream out, HttpStatus status, InputStream in) {
         try {
             if (in != null) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 byte[] tmp = new byte[4096];
                 int bytesRead;
+
                 while ((bytesRead = in.read(tmp)) != -1) {
                     buffer.write(tmp, 0, bytesRead);
                 }
+
                 byte[] body = buffer.toByteArray();
                 String header = "HTTP/1.1 " + status + "\r\n" +
                         "Content-Type: text/html; charset=UTF-8\r\n" +
                         "Content-Length: " + body.length + "\r\n\r\n";
+
                 out.write(header.getBytes(StandardCharsets.UTF_8));
                 out.write(body);
                 out.flush();
@@ -57,7 +46,7 @@ public class ErrorHandler {
                 sendPlainText(out, status, status.reason());
             }
         } catch (IOException e) {
-            logger.error("에러 스트림 전송 중 문제 발생: {}", e);
+            logger.error("에러 페이지 전송 실패: {}", e);
             sendPlainText(out, status, status.reason());
         }
     }
@@ -69,6 +58,7 @@ public class ErrorHandler {
                     "Content-Type: text/plain; charset=UTF-8\r\n" +
                     "Content-Length: " + bodyBytes.length + "\r\n\r\n" +
                     message;
+
             out.write(response.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {

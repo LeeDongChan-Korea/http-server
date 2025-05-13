@@ -43,22 +43,6 @@ public class HttpResponse {
     }
 
     /**
-     * 지정된 파일을 읽어서 전송
-     * - Content-Type은 HTML로 고정
-     *
-     * @param file 전송할 파일
-     */
-    public void sendFile(File file) throws IOException {
-        byte[] content = Files.readAllBytes(file.toPath());
-        out.write(("HTTP/1.1 200 OK\r\n" +
-                   "Content-Type: text/html; charset=UTF-8\r\n" +
-                   "Content-Length: " + content.length + "\r\n\r\n")
-                   .getBytes(StandardCharsets.UTF_8));
-        out.write(content);
-        out.flush();
-    }
-
-    /**
      * InputStream으로부터 데이터를 읽어 전송
      * - Content-Type을 직접 지정 가능
      *

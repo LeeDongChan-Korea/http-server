@@ -6,12 +6,14 @@
 
 ### 주요 기능
 
-* SimpleServlet 기반 동적 요청 처리
-* `config.json` 기반 호스트별 포트 및 경로 설정
-* `.exe`, `..` 등 금지된 경로 접근 차단
-* 403, 404, 500 오류 페이지 지원
-* Logback 기반 날짜별 로깅
-* JUnit 기반 단위 테스트 포함
+* SimpleServlet 기반의 동적 요청 처리
+* config.json을 통한 호스트별 포트 및 경로 설정
+* .exe, .. 등 금지된 경로 접근 차단
+* 403, 404, 500 에러 페이지 지원
+* Logback을 이용한 날짜별 로깅
+* JUnit 기반의 단위 테스트 포함
+* URL 쿼리 파라미터 처리 지원
+* 현재 시간을 반환하는 Time 서블릿 제공
 
 ---
 
@@ -121,6 +123,7 @@ was/
 
 ```bash
 curl -H "Host: user.example.com" http://localhost:8000/
+curl -H "Host: user.example.com" http://localhost:8000/Hello?name=Lee
 curl -H "Host: admin.example.com" http://localhost:8000/service.Time
 curl -H "Host: admin.example.com" http://localhost:8000/Not ##존재하지않는 파일테스트
 ```

@@ -36,7 +36,7 @@ public class HttpServer {
                     Socket clientSocket = server.accept();
                     pool.submit(new RequestProcessor(config, clientSocket));
                 } catch (IOException e) {
-                    logger.warn("요청 수락 실패", e);
+                    logger.error("요청 수락 실패", e);
                 }
             }
         } catch (IOException e) {

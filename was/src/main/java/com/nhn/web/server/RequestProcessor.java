@@ -100,22 +100,22 @@ public class RequestProcessor implements Runnable {
 
             } catch (ClassNotFoundException e) {
                 sendErrorPage(out, HttpStatus.NOT_FOUND, host);
-                logger.warn("서블릿 클래스 없음: {}", className);
+                logger.error("서블릿 클래스 없음: {}", className, e);
             } catch (IllegalArgumentException e) {
                 sendErrorPage(out, HttpStatus.NOT_IMPLEMENTED, host);
-                logger.warn("서블릿 타입 오류: {}", className, e);
+                logger.error("서블릿 타입 오류: {}", className, e);
             } catch (Exception e) {
                 sendErrorPage(out, HttpStatus.INTERNAL_SERVER_ERROR, host);
                 logger.error("서버 처리 중 예외 발생", e);
             }
 
         } catch (IOException e) {
-            logger.warn("입출력 오류: {}", e.getMessage(), e);
+            logger.error("입출력 오류: {}", e.getMessage(), e);
         } finally {
             try {
                 connection.close();
             } catch (IOException e) {
-                logger.warn("소켓 닫기 실패: {}", e.getMessage(), e);
+                logger.error("소켓 닫기 실패: {}", e.getMessage(), e);
             }
         }
     }

@@ -32,7 +32,7 @@ public class ErrorHandler {
                 sendPlainText(out, status, status.reason());
             }
         } catch (IOException e) {
-            logger.warn("에러 페이지 전송 중 예외 발생: {}", e.toString());
+            logger.error("에러 페이지 전송 중 예외 발생: {}", e);
             sendPlainText(out, status, status.reason());
         }
     }
@@ -57,7 +57,7 @@ public class ErrorHandler {
                 sendPlainText(out, status, status.reason());
             }
         } catch (IOException e) {
-            logger.warn("에러 스트림 전송 중 문제 발생: {}", e.toString());
+            logger.error("에러 스트림 전송 중 문제 발생: {}", e);
             sendPlainText(out, status, status.reason());
         }
     }
@@ -72,7 +72,7 @@ public class ErrorHandler {
             out.write(response.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {
-            logger.warn("텍스트 에러 응답 전송 실패: {}", e.toString());
+            logger.error("텍스트 에러 응답 전송 실패: {}", e);
         }
     }
 }

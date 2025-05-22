@@ -5,7 +5,7 @@ import com.nhn.web.server.config.ServerConfig;
 import java.util.Map;
 
 public class ServletMapper {
-    private static final String BASE_PACKAGE = "com.nhn.web.server.service";
+    private static final String BASE_PACKAGE = "com.nhn.web.server";
 
     /**
      * URL 경로를 서블릿 클래스 이름으로 매핑합니다.
@@ -19,31 +19,28 @@ public class ServletMapper {
      */
     public static String mapUrlToClassName(String path, ServerConfig config, String host) {
     	
-        if (path == null) {
-            return null;
-        }
+        if (path == null) return null;
+
         // 1. 설정 기반 매핑이 존재할 경우 우선 사용
         Map<String, String> servletMappings = getServletMappingsFromConfig(config);
         if (servletMappings.containsKey(path)) {
-            String mappedClass = servletMappings.get(path);
-            return BASE_PACKAGE + "." + mappedClass;
-        }
-
-        // 2. 규칙 기반 매핑 처리
-        if (path == null || path.equals("/")) {
-            String indexFile = config.getHosts().get(host).getIndexFile();
-            if (indexFile.contains(".")) {
-                return null;
-            }
-            return BASE_PACKAGE + "." + indexFile;
+            return BASE_PACKAGE + "." + servletMappings.get(path);
         }
 
         String trimmed = path.startsWith("/") ? path.substring(1) : path;
-        if (trimmed.contains(".")) {
-            return null;
+        // index 처리
+        if (trimmed.isEmpty()) {
+            String indexFile = config.getHosts().get(host).getIndexFile();
+            return BASE_PACKAGE + ".service." + indexFile;
         }
 
-        return BASE_PACKAGE + "." + trimmed.replace("/", ".");
+        // .이 포함되어 있으면 BASE_PACKAGE + "." + 그대로 사용
+        if (trimmed.contains(".")) {
+            return BASE_PACKAGE + "." + trimmed;
+        }
+
+        // 기본은 service 패키지 하위
+        return BASE_PACKAGE + ".service." + trimmed;
     }
 
     // 추후 확장을 위한 placeholder 메서드

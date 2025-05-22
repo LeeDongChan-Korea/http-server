@@ -23,16 +23,14 @@ public class ServletMapperTest {
         String expected = "com.nhn.web.server.service.Hello";
         assertEquals(expected, ServletMapper.mapUrlToClassName(path, config, host));
     }
-
+    
     @Test
-    public void testStaticPath() {
-        assertNull(ServletMapper.mapUrlToClassName("/index.html", config, host));
+    public void testServletPath() {
+        String path = "/service.Hello";
+        String expected = "com.nhn.web.server.service.Hello";
+        assertEquals(expected, ServletMapper.mapUrlToClassName(path, config, host));
     }
 
-    @Test
-    public void testRootPath() {
-        assertNull(ServletMapper.mapUrlToClassName("/", config, host));
-    }
 
     @Test
     public void testNullPath() {
